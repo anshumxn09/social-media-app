@@ -53,6 +53,7 @@ const userController = {
                 })
             }
             const {email, password} = req.body;
+
             const user = await userSchema.findOne({email}).select("+password"); //because we have mention in schema that select none
             if(!user){
                 return res.status(500).json({
