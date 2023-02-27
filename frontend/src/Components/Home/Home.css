@@ -6,7 +6,7 @@
 }
 
 .homeleft {
-  background-image: linear-gradient(to right, #fff5bc, #cec1ff);
+  background-image: linear-gradient(to right, #ffafbd , #ffc3a0);
 
   overflow-y: auto;
   display: flex;

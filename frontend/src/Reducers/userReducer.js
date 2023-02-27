@@ -1,7 +1,5 @@
 import { createReducer } from "@reduxjs/toolkit";
-const initialState = {
-    isAuthenticated : false
-}
+const initialState = {}
 
 export const userReducer = createReducer(initialState, {
     loginRequest : (state, actions) => {
@@ -19,16 +17,17 @@ export const userReducer = createReducer(initialState, {
     },
 
     registerRequest : (state, actions) => {
-        state.loading = true;
-
+        state.loading = true
     },
     registerSuccess : (state, actions) => {
         state.loading = false;
-        state.user = actions.payload
+        state.user = actions.payload;
+        state.isAuthenticated = true;
     },
     registerFailure : (state, actions) => {
         state.loading = false;
         state.error = actions.payload
+        state.isAuthenticated = false;
     },
 
     loadUserRequest : (state, actions) => {
@@ -44,4 +43,41 @@ export const userReducer = createReducer(initialState, {
         state.error = actions.payload
         state.isAuthenticated = false;
     },
+    clearError : (state) => {
+        state.error = null;
+    }
+})
+
+export const postOffFollowingReducer = createReducer({}, {
+    postOffFollowingRequest : (state) => {
+        state.loading = true
+    },
+    postOffFollowingSuccess : (state, action) => {
+        state.loading = false;
+        state.posts = action.payload;
+    },
+    postOffFollowingFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+    clearError : (state) => {
+        state.error = null;
+    }
+})
+
+export const allUserReducer = createReducer({}, {
+    allUserRequest : (state) => {
+        state.loading = true
+    },
+    allUserSuccess : (state, action) => {
+        state.loading = false;
+        state.users = action.payload;
+    },
+    allUserFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+    clearError : (state) => {
+        state.error = null;
+    }
 })

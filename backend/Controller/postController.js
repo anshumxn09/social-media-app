@@ -83,11 +83,17 @@ const postController = {
                 await post.save();
             }else{
                 post.likes.push(req.user._id);
+                like = true
                 await post.save();
             }
+
+            let message;
+            if(like){
+                message = "you've liked this post"
+            }else message = "yo've unliked this post"
             res.status(200).json({
                 success : true,
-                like
+                message
             })
         } catch (error) {
             return res.status(500).json({
@@ -110,11 +116,11 @@ const postController = {
                 owner : {
                     $in : user.following,
                 }
-            })
+            }).populate("owner likes comments.user")
 
             return res.status(200).json({
                 success : true,
-                posts
+                posts : posts.reverse()
             })
         } catch (error) {
             return res.status(500).json({
