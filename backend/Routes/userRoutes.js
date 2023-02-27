@@ -13,6 +13,7 @@ userRouter.route("/update/password").put(middlewares.isAuthenticated, userContro
 userRouter.route("/update/profile")
     .put(middlewares.isAuthenticated, userController.updateProfile)
 
+userRouter.route("/me/posts").get(middlewares.isAuthenticated, userController.getMyPosts);
 userRouter.route("/me")
     .delete(middlewares.isAuthenticated, userController.deleteMyProfile)
     .get(middlewares.isAuthenticated, userController.showMyProfile)

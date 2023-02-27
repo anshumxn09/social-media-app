@@ -7,7 +7,6 @@ const User = ({userId, name, avatar}) => {
     <Link to={`/user/${userId}`} className="homeUser">
         <img src={avatar} alt={name}/>
         <Typography>{name}</Typography>
-        
     </Link>
   )
 }

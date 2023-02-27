@@ -10,7 +10,7 @@ import {
     DeleteOutline
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { commentPost, likePost } from "../../Actions/Post";
+import { commentPost, likePost} from "../../Actions/Post";
 import { getFollowingPosts } from "../../Actions/User";
 import User from "../User/User";
 import CommentCard from "../CommentCard/CommentCard";
@@ -58,7 +58,7 @@ const Post = ({
                 setLiked(true);
             }
         })
-    }, [liked, user._id])
+    }, [liked])
 
   return (
     <div className="post">
@@ -130,6 +130,7 @@ const Post = ({
                 {
                         comments.length > 0 ? comments.map((elem) => (
                             <CommentCard 
+                                key={elem._id}
                                 userId={elem.user._id} 
                                 name={elem.user.name}
                                 avatar={elem.user.avatar.url}

@@ -36,16 +36,17 @@ const Home = () => {
       <div className="home">
         <div className="homeleft">
           {
-            posts && posts.length > 0 ? posts.map((post,) => (
-              <Post key={post._id} postImage={"https://static.toiimg.com/thumb/resizemode-4,width-1200,height-900,msid-72958514/72958514.jpg"}
+            posts && posts.length > 0 ? posts.map((post) => (
+              <Post 
+              key={post._id} postImage={"https://static.toiimg.com/thumb/resizemode-4,width-1200,height-900,msid-72958514/72958514.jpg"}
 
-            postId={post._id}
-            caption={post.caption}
-            likes = {post.likes}
-            comments={post.comments}
-            ownerImage={post.owner.avatar.url}
-            ownerName={post.owner.name}
-            ownerId={post.owner._id}
+              postId={post._id}
+              caption={post.caption}
+              likes = {post.likes}
+              comments={post.comments}
+              ownerImage={post.owner.avatar.url}
+              ownerName={post.owner.name}
+              ownerId={post.owner._id}
           />
             )) : <Typography variant='h6'>No Posts Yet</Typography>
           }

@@ -1,5 +1,5 @@
 import {configureStore} from '@reduxjs/toolkit';
-import { likeReducer } from './Reducers/postReducer';
+import { likeReducer, myPostReducer } from './Reducers/postReducer';
 import { userReducer, postOffFollowingReducer, allUserReducer} from './Reducers/userReducer';
 const initialState = {}
 
@@ -8,7 +8,8 @@ const store = configureStore({
         user : userReducer,
         postOffFollowingReducer,
         allUserReducer,
-        likeReducer
+        likeReducer,
+        myPostReducer
     }
 })
 

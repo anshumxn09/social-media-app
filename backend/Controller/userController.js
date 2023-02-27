@@ -371,6 +371,27 @@ const userController = {
                 message : error.message
             })
         }
+    },
+    getMyPosts : async (req, res) => {
+        try {
+            const user = await userSchema.findById(req.user._id);
+
+            let posts = [];
+
+            for(var i=0; i<user.post.length; i++){
+                const post = await postSchema.findById(user.post[i]).populate("likes comments.user owner");
+                posts.push(post);
+            }
+            return res.status(200).json({
+                success : true,
+                posts
+            }) 
+        } catch (error) {
+            return res.status(500).json({
+                success : false,
+                message : error.message
+            })
+        }
     }
 }
 
