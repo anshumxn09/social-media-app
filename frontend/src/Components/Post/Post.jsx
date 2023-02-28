@@ -10,8 +10,8 @@ import {
     DeleteOutline
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { commentPost, likePost} from "../../Actions/Post";
-import { getFollowingPosts } from "../../Actions/User";
+import { commentPost, deletePost, likePost, updateCaption} from "../../Actions/Post";
+import { getFollowingPosts, getMyPosts, loadUser } from "../../Actions/User";
 import User from "../User/User";
 import CommentCard from "../CommentCard/CommentCard";
 
@@ -29,17 +29,22 @@ const Post = ({
 }) => {
     const dispatch = useDispatch();
     const {user} = useSelector(state => state.user);
+    const {message} = useSelector(state => state.likeReducer);
 
     const [liked, setLiked] = useState(false);
     const [userBox, setUserBox] = useState(false);
+
     const [commentBox, setCommentBox] = useState(false);
     const [commentValue, setCommentValue] = useState("");
+
+    const [captionBox, setcaptionBox] = useState(false);
+    const [captionValue, setcaptionValue] = useState(caption);
 
     const handleLike = async () => {
         await dispatch(likePost(postId));
         if(!isAccount){
             dispatch(getFollowingPosts());
-        }else console.log("Anshuman");
+        }else dispatch(getMyPosts());
         setLiked(!liked);
     }
 
@@ -48,8 +53,22 @@ const Post = ({
         await dispatch(commentPost(postId, commentValue));
         if(!isAccount){
             dispatch(getFollowingPosts());
-        }else console.log("Anshuman");
+        }else dispatch(getMyPosts());
+
         setLiked(!liked);
+    }   
+
+    const updateCaptionHandler = () => {
+        dispatch(updateCaption(postId, captionValue));
+        dispatch(getMyPosts());
+    }
+
+    const deletePostHandler = async () => {
+        if(window.confirm("Are you sure to delete this post")){
+            await dispatch(deletePost(postId));
+            dispatch(getMyPosts());
+            dispatch(loadUser());
+        }
     }
 
     useEffect(() => {
@@ -58,12 +77,12 @@ const Post = ({
                 setLiked(true);
             }
         })
-    }, [liked])
+    }, [liked, message])
 
   return (
     <div className="post">
         <div className="postHeader">
-            {isAccount && <Button>
+            {isAccount && <Button onClick={() => setcaptionBox(true)}>
                 <MoreVert/>
             </Button>}
         </div>
@@ -101,7 +120,7 @@ const Post = ({
             </Button>
             <Button onClick={() => setCommentBox(!commentBox)}><ChatBubbleOutline/></Button>
             {
-                isDelete && (<Button><DeleteOutline/></Button>)
+                isAccount && (<Button onClick={deletePostHandler}><DeleteOutline/></Button>)
             }
         </div>
         <Dialog open={userBox} onClose={() => setUserBox(!userBox)}>
@@ -141,6 +160,15 @@ const Post = ({
                             />
                         )) : <Typography variant="h5">"No comments yet"</Typography>
                     }
+            </div>
+        </Dialog>
+        <Dialog open={captionBox} onClose={() => setcaptionBox(!captionBox)}>
+            <div className="DialogBox">
+                <Typography variant="h4">Edit caption</Typography>
+                <form className="commentForm" onSubmit={updateCaptionHandler}>
+                    <input type="text" value={captionValue} onChange={(e) => setcaptionValue(e.target.value)} placeholder="Edit your caption here..."/>
+                    <Button type="submit" variant="contained" >Edit</Button>
+                </form>
             </div>
         </Dialog>
     </div>

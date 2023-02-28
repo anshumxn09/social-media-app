@@ -1,28 +1,33 @@
 const postSchema = require("../Schema/postSchema");
 const userSchema = require("../Schema/userSchema");
+const cloudinary = require("cloudinary");
 
 const postController = {
     createPost : async (req, res) => {
         try {
+            const myCloud = await cloudinary.v2.uploader.upload(req.body.image, {
+                folder : "Post"
+            })
+
             const makePostData = {
                 caption : req.body.caption,
                 image : {
-                    public_id : "sample_url",
-                    url : "sample_url"
+                    public_id : myCloud.public_id,
+                    url : myCloud.secure_url
                 },
                 owner : req.user._id
             };
 
             const makePost = new postSchema(makePostData)
             const user = await userSchema.findById(req.user._id);
-            user.post.push(makePost._id);
+            user.post.unshift(makePost._id);
 
             await makePost.save();
             await user.save();
 
             res.status(201).json({
                 success : true,
-                post : makePost
+                message : "Post Created"
             })
 
         } catch (error) {
@@ -48,6 +53,9 @@ const postController = {
                     message : "invalid authentication"
                 })
             }
+
+            await cloudinary.v2.uploader.destroy(post.image.public_id);
+
             await post.remove();
             const user = await userSchema.findById(req.user._id);
             user.post.splice(user.post.indexOf(req.params.id), 1);
@@ -148,7 +156,8 @@ const postController = {
                })
             }
 
-            const {caption} = req.body
+            const {caption} = req.body;
+
             if(caption){
                 post.caption = caption;
             }

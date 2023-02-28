@@ -22,6 +22,28 @@ export const loginUser = (email, password) => async (dispatch) => {
     }
 }
 
+export const registerUser = (name, email, password, images) => async (dispatch) => {
+    try {
+        dispatch({
+            type : "registerRequest"
+        })
+        const {data} = await axios.post("/api/register", {
+            email, password, name, images
+        }, {
+            headers : {"Content-Type" : "application/json"}
+        })
+        dispatch({
+            type : "registerSuccess",
+            payload : data.user
+        })
+    } catch (error) {
+        dispatch({
+            type : "registerFailure",
+            payload : error.response.data.message
+        })
+    }
+}
+
 export const loadUser = (email, password) => async (dispatch) => {
     try {
         dispatch({
@@ -98,6 +120,25 @@ export const getMyPosts = () => async(dispatch) => {
     } catch (error) {
         dispatch({
             type : "myPostFailure",
+            payload : error.response.data.message
+        })
+    }
+}
+
+export const logoutUser = () => async (dispatch) => {
+    try {
+        dispatch({
+            type : "logoutRequest"
+        })
+        
+        const {data} = await axios.get("/api/logout");
+
+        dispatch({
+            type : "logoutSuccess",
+        })
+    } catch (error) {
+        dispatch({
+            type : "logoutFailure",
             payload : error.response.data.message
         })
     }

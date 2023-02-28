@@ -2,11 +2,17 @@ const { sendEmail } = require("../middleware/sendEmail")
 const postSchema = require("../Schema/postSchema")
 const userSchema = require("../Schema/userSchema")
 const crypt = require('crypto')
+const cloudinary = require('cloudinary');
 
 const userController = {
     register : async (req, res) => {
         try {
-            const {name , email, password} = req.body
+            const {name , email, password, images} = req.body
+
+            const image = await cloudinary.v2.uploader.upload(images, {
+                folder :"Post"
+            })
+
             let user = await userSchema.findOne({email})
             if(user){
                 return res.status(404).json({
@@ -16,8 +22,8 @@ const userController = {
             }
             user = new userSchema({name, email, password ,
                 avatar : {
-                    public_id : "sample_url",
-                    url : "sample_url"
+                    public_id : image.public_id,
+                    url : image.secure_url
                 }
             })
 
@@ -54,7 +60,8 @@ const userController = {
             }
             const {email, password} = req.body;
 
-            const user = await userSchema.findOne({email}).select("+password"); //because we have mention in schema that select none
+            const user = await userSchema.findOne({email}).select("+password").populate("followers following")
+            //because we have mention in schema that select none
             if(!user){
                 return res.status(500).json({
                     success : false,
@@ -91,7 +98,7 @@ const userController = {
     },
     logout : async (req, res) => {
         try {
-            return res.status(500).cookie("token", null, {
+            return res.status(200).cookie("token", null, {
                 expires : new Date(Date.now()),
                 httpOnly : true
             })
@@ -243,7 +250,7 @@ const userController = {
     },
     showMyProfile : async (req, res) => {
         try {
-            const user = await userSchema.findById(req.user._id).populate('post');
+            const user = await userSchema.findById(req.user._id).populate('post following followers');
             return res.status(200).json({
                 success : true,
                 user
