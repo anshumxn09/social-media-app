@@ -75,6 +75,66 @@ export const likeReducer = createReducer(initialState, {
         state.error = action.payload;
     },
 
+    updateProfileRequest : (state) => {
+        state.loading = true
+    },
+    updateProfileSuccess : (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+    },
+    updateProfileFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+
+    updatePasswordRequest : (state) => {
+        state.loading = true
+    },
+    updatePasswordSuccess : (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+    },
+    updatePasswordFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+
+    deleteProfileRequest : (state) => {
+        state.loading = true
+    },
+    deleteProfileSuccess : (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+    },
+    deleteProfileFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+
+    forgotPasswordRequest : (state) => {
+        state.loading = true
+    },
+    forgotPasswordSuccess : (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+    },
+    forgotPasswordFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+
+    resetPasswordRequest : (state) => {
+        state.loading = true
+    },
+    resetPasswordSuccess : (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+    },
+    resetPasswordFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+
     clearError : (state) => {
         state.error = null;
     },
@@ -93,6 +153,23 @@ export const myPostReducer = createReducer({}, {
         state.myposts = action.payload;
     },
     myPostFailure: (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+    clearError : (state) => {
+        state.error = null;
+    },
+})
+
+export const userPostReducer = createReducer({}, {
+    userPostRequest: (state) => {
+        state.loading = true;
+    },
+    userPostSuccess: (state, action) => {
+        state.loading = false;
+        state.posts = action.payload;
+    },
+    userPostFailure: (state, action) => {
         state.loading = false;
         state.error = action.payload;
     },

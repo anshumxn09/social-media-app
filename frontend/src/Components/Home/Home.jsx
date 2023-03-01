@@ -59,7 +59,7 @@ const Home = () => {
               key={elem._id}
               userId={elem._id}
               name={elem.name}
-              avatar={"https://avatars.githubusercontent.com/u/25058652?v=4"}
+              avatar={elem.avatar.url}
             ></User>
             ))
           ) : <Typography variant='h3'>No User Available</Typography>

@@ -1,37 +1,38 @@
 import { Avatar, Button, Dialog, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { deleteProfile, getMyPosts, loadUser, logoutUser } from '../../Actions/User';
+import { getMyPosts, getUserPosts } from '../../Actions/User';
 import Loader from '../Loader/Loader';
 import Post from '../Post/Post';
 import { useAlert } from "react-alert";
-import './Account.css';
-import { Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import User from '../User/User';
 
-const Account = () => {
+const UserProfile = () => {
+    const {id} = useParams();
     const [followerToggle, setFollowersToggle] = useState(false);
     const [followingToggle, setFollowingToggle] = useState(false);
+    const [userFollowing, setUserFollowing] = useState(false);
+    const [myProfile, setMyProfile] = useState(false);
+    const {posts, loading : proLoading} = useSelector(state => state.userPostReducer);
     const alert = useAlert();
-
     const dispatch = useDispatch();
+
     const {user, loading : userloading, error : loginError} = useSelector(state => state.user);
     const {error, loading, myposts} = useSelector(state => state.myPostReducer);
     const {message, error : errors} = useSelector(state => state.likeReducer);
 
-    const handleLogout = async () => {
-        await dispatch(logoutUser());
-        alert.success("Logged out successfully!!")
-    }
-
-    const deleteMyProfile = async () => {
-        await dispatch(deleteProfile());
-        dispatch(logoutUser());
+    const followHandler = () => {
+        setUserFollowing(!userFollowing);
     }
 
     useEffect(() => {
-        dispatch(getMyPosts());
-    }, [dispatch])
+        dispatch(getUserPosts(id));
+        console.log(posts);
+        if(user._id === id){
+            setMyProfile(true)
+        }
+    }, [])
 
     useEffect(() => {
         if(error){
@@ -57,11 +58,11 @@ const Account = () => {
         dispatch(getMyPosts());
     }, [dispatch, message, error, alert, errors])
 
-  return loading || userloading ? <Loader/> : (
+  return loading || proLoading || userloading? <Loader/> : (
     <div className="account">
         <div className="accountleft">
             {
-                myposts && myposts.length > 0 ? myposts.map((post) => (
+                posts && posts.length > 0 ? posts.map((post) => (
                     <Post 
                         key={post._id} postImage={post.image.url}
                         postId={post._id}
@@ -77,7 +78,7 @@ const Account = () => {
             }
         </div>
         <div className="accountright">
-            <Avatar src={user.avatar.url} sx={{height : "8vmax", width : "8vmax"}}></Avatar>
+            <Avatar src={""} sx={{height : "8vmax", width : "8vmax"}}></Avatar>
             <Typography variant='h5'>{user.name}</Typography>
 
             <div>
@@ -113,12 +114,11 @@ const Account = () => {
                 </button>
             </div>
 
-            <Button variant='contained' onClick={handleLogout}>Logout</Button>
-
-            <Link to="/update/profile">Edit Profile</Link>
-            <Link to="/update/password">Update Password</Link>
-
-            <Button onClick={deleteMyProfile} variant='text' style={{ background : "red" ,color : "white", margin : "2vmax"}}>Delete My Profile</Button>
+            {
+                !myProfile && <Button variant='contained' onClick={followHandler}>
+                    {userFollowing ? "Unfollow" : "Follow"}
+                </Button>
+            }
 
             <Dialog open={followerToggle} onClose={() => setFollowersToggle(false)}>
             <div className="DialogBox">
@@ -156,4 +156,4 @@ const Account = () => {
   )
 }
 
-export default Account;
+export default UserProfile;

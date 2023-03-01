@@ -1,16 +1,19 @@
 import { Avatar, Button, Typography } from '@mui/material';
-import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import { useAlert } from 'react-alert';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { registerUser } from '../../Actions/User';
 import './Register.css';
 
 const Register = () => {
+    const {loading, error} = useSelector(state => state.user);
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [avatar, setAvatar] = useState("");
     const dispatch = useDispatch();
+    const alert = useAlert();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -29,6 +32,14 @@ const Register = () => {
         e.preventDefault();
         dispatch(registerUser(name, email, password, avatar));
     }
+
+    useEffect(() => {
+        if(error){
+            alert.error(error);
+            dispatch({type : "clearError"})
+        }
+    }, [error, alert, dispatch]);
+
   return (
     <div className="register">
         <form className="registerForm" onSubmit={registerHandler}>
@@ -48,7 +59,7 @@ const Register = () => {
 
             <input type="file" accept='image/*' onChange={handleImageChange}/>
             
-            <Button type='submit'>Register</Button>
+            <Button type='submit' disabled={loading}>Register</Button>
             <Link to={"/login"}>
                 <Typography>Already have an account?</Typography>
             </Link>

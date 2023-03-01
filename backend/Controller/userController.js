@@ -14,6 +14,7 @@ const userController = {
             })
 
             let user = await userSchema.findOne({email})
+
             if(user){
                 return res.status(404).json({
                     success : false,
@@ -173,6 +174,7 @@ const userController = {
             }
             user.password = newpass;
             await user.save();
+
             return res.status(200).json({
                 success : true,
                 message : "password updated successfully"
@@ -187,13 +189,26 @@ const userController = {
     updateProfile : async (req, res) => {
         try {
            const user = await userSchema.findById(req.user._id);
-           const {email, name} = req.body
+           const {email, name, avatar} = req.body
 
             if(email){
                 user.email = email
             }
             if(name){
                 user.name = name
+            }
+
+            if(avatar){
+                await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+                const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+                    folder : "Post"
+                })
+
+                user.avatar = {
+                    url : myCloud.secure_url,
+                    public_id : myCloud.public_id           
+                }
             }
             await user.save();
 
@@ -215,6 +230,7 @@ const userController = {
 
             user.post.forEach(async (elem) => {
                 const post = await postSchema.findById(elem);
+                await cloudinary.v2.uploader.destroy(post.image.public_id);
                 await post.remove();
             })
             
@@ -230,6 +246,7 @@ const userController = {
                 await follower.save();
             })
 
+            await cloudinary.v2.uploader.destroy(user.avatar.public_id);
             await user.remove();
 
             // logged out user after deleting the profile
@@ -265,6 +282,7 @@ const userController = {
     getUserProfile : async (req, res) => {
         try {
             const user = await userSchema.findById(req.params.id).populate('post');
+
             if(!user){
                 return res.status(400).json({
                     success : false,
@@ -274,12 +292,33 @@ const userController = {
 
             return res.status(200).json({
                 success : true,
-                user
+                user,
             })
         } catch (error) {
             return res.status(500).json({
                 success : true,
                 message :  error.message
+            })
+        }
+    },
+    getUserPosts : async (req, res) => {
+        try {
+            const user = await userSchema.findById(req.params.id);
+
+            let posts = []
+            for(var i=0; i<user.post.length; i++){
+                const post = await postSchema.findById(user.post[i]).populate("likes comments.user owner");
+                posts.push(post);
+            }
+
+            return res.status(200).json({
+                success : true,
+                posts
+            })
+        } catch (error) {
+            return res.status(500).json({
+                success : false,
+                message : error.message
             })
         }
     },
@@ -301,6 +340,7 @@ const userController = {
         try {
             const {email} = req.body;
             const user = await userSchema.findOne({email})
+
             if(!user){
                 return res.status(400).json({
                     success : false,
@@ -310,7 +350,7 @@ const userController = {
             const resetPasswordToken = await user.generateResetToken();
             await user.save();
 
-            const resetUrl = `${req.protocol}://${req.get("host")}/api/password/reset/${resetPasswordToken}`;
+            const resetUrl = `${req.protocol}://${req.get("host")}/password/reset/${resetPasswordToken}`;
 
             const message = "reset the password : \n"+resetUrl;
             try {
