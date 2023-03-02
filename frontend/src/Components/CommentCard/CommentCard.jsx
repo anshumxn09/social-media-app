@@ -5,10 +5,10 @@ import './CommentCard.css';
 import {Delete} from "@mui/icons-material";
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteComment } from '../../Actions/Post';
-import { getFollowingPosts } from '../../Actions/User';
+import { getFollowingPosts, getUserPosts } from '../../Actions/User';
 
 const CommentCard = ({
-    userId, name, avatar, comment, commentId, postId, isAccount
+    userId, name, avatar, comment, commentId, postId, isAccount, acc
 }) => {
     const dispatch = useDispatch();
     const {user} = useSelector(state => state.user);
@@ -16,12 +16,13 @@ const CommentCard = ({
         await dispatch(deleteComment(postId, commentId));
         if(isAccount){
             dispatch(getFollowingPosts());
+            dispatch(getUserPosts(acc));
         }else console.log("Anshuman");
     }
   return (
     <div className="commentUser">
         <Link to={`/user/${userId}`}>
-            <img src={"https://i.pinimg.com/736x/0f/21/7d/0f217d0189f841ae794500966ab1845a.jpg"} alt={name}/>
+            <img src={avatar} alt={name}/>
             <Typography style={{minWidth : "6vmax"}}>{name}</Typography>
         </Link>
         <Typography>{comment}</Typography>

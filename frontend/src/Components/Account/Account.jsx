@@ -57,7 +57,7 @@ const Account = () => {
         dispatch(getMyPosts());
     }, [dispatch, message, error, alert, errors])
 
-  return loading || userloading ? <Loader/> : (
+  return loading || userloading || !user? <Loader/> : (
     <div className="account">
         <div className="accountleft">
             {
@@ -129,7 +129,7 @@ const Account = () => {
                         key={elem._id}
                         userId={elem._id}
                         name={elem.name}
-                        avatar={"https://avatars.githubusercontent.com/u/25058652?v=4"}
+                        avatar={elem.avatar.url}
                         ></User>
                     )) : "No followers yet"
                 }
@@ -145,7 +145,7 @@ const Account = () => {
                         key={elem._id}
                         userId={elem._id}
                         name={elem.name}
-                        avatar={"https://avatars.githubusercontent.com/u/25058652?v=4"}
+                        avatar={elem.avatar.url}
                         ></User>
                     )) : "No following yet"
                 }

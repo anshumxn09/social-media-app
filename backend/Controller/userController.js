@@ -143,9 +143,14 @@ const userController = {
             }
             await user.save();
             await userToFollow.save();
+            let message = ""
+            if(follow){
+                message = `you started following ${userToFollow.name}`
+            }else message = `you unfollowed ${userToFollow.name}`
+
             return res.status(200).json({
                 success : true,
-                follow
+                message
             })
         } catch (error) {
             return res.status(500).json({
@@ -247,6 +252,30 @@ const userController = {
             })
 
             await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+            const get_all_posts = await postSchema.find();
+            // deleting all the comments of the user
+            for (var i=0; i<get_all_posts.length; i++){
+                const post = await postSchema.findById(get_all_posts[i]._id);
+                for(var j=0; j<post.comments.length; j++){
+                    if(post.comments[j].user.toString() === user._id.toString()){
+                        post.comments.splice(j, 1);
+                    }
+                }
+                await post.save();
+            }
+
+            // deleting all the likes of the user
+            for (var i=0; i<get_all_posts.length; i++){
+                const post = await postSchema.findById(get_all_posts[i]._id);
+                for(var j=0; j<post.likes.length; j++){
+                    if(post.likes[j].toString() === user._id.toString()){
+                        post.likes.splice(j, 1);
+                    }
+                }
+                await post.save();
+            }
+
             await user.remove();
 
             // logged out user after deleting the profile
@@ -281,7 +310,7 @@ const userController = {
     },
     getUserProfile : async (req, res) => {
         try {
-            const user = await userSchema.findById(req.params.id).populate('post');
+            const user = await userSchema.findById(req.params.id).populate('post followers following');
 
             if(!user){
                 return res.status(400).json({
@@ -324,7 +353,12 @@ const userController = {
     },
     getAllUser : async (req, res) => {
         try {
-            const user = await userSchema.find();
+            const user = await userSchema.find({
+                name : {
+                    $regex : req.query.name,
+                    $options : "i"
+                }
+            });
             return res.status(200).json({
                 success : true,
                 user

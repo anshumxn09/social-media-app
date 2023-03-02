@@ -38,7 +38,7 @@ const Home = () => {
           {
             posts && posts.length > 0 ? posts.map((post) => (
               <Post 
-              key={post._id} postImage={"https://static.toiimg.com/thumb/resizemode-4,width-1200,height-900,msid-72958514/72958514.jpg"}
+              key={post._id} postImage={post.image.url}
 
               postId={post._id}
               caption={post.caption}

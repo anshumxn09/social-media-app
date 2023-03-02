@@ -14,6 +14,8 @@ import UpdatePassword from './Components/UpdateProfile/UpdatePassword';
 import ForgotPassword from './Components/ForgotPassword/ForgotPassword';
 import ResetPassword from './Components/ResetPassword/ResetPassword';
 import UserProfile from './Components/UserProfile/UserProfile';
+import Search from './Components/Seach/Search';
+import NotFound from './Components/NotFound/NotFound';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -44,8 +46,11 @@ const App = () => {
 
         <Route path='/password/reset/:token' element={isAuthenticated ? <UpdatePassword/> : <ResetPassword/>}></Route>
 
-        {/* <Route path='/user/:id' element={isAuthenticated ? <UserProfile/> : <Login/>}></Route> */}
+        <Route path='/user/:id' element={isAuthenticated ? <UserProfile/> : <Login/>}></Route>
 
+        <Route path='/search' element={isAuthenticated ? <Search/> : <Login/>}></Route>
+
+        <Route path='/*' element={<NotFound/>}></Route>
       </Routes>
     </Router>
   )

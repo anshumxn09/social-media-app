@@ -95,3 +95,20 @@ export const allUserReducer = createReducer({}, {
         state.error = null;
     }
 })
+
+export const userDetailsReducer = createReducer({}, {
+    userDetailsRequest : (state) => {
+        state.loading = true
+    },
+    userDetailsSuccess : (state, action) => {
+        state.loading = false;
+        state.users = action.payload;
+    },
+    userDetailsFailure : (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+    clearError : (state) => {
+        state.error = null;
+    }
+})

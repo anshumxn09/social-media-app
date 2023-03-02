@@ -1,7 +1,7 @@
 import { Avatar, Button, Dialog, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getMyPosts, getUserPosts } from '../../Actions/User';
+import { followUnfollow, getUserDetails, getUserPosts, loadUser } from '../../Actions/User';
 import Loader from '../Loader/Loader';
 import Post from '../Post/Post';
 import { useAlert } from "react-alert";
@@ -10,55 +10,61 @@ import User from '../User/User';
 
 const UserProfile = () => {
     const {id} = useParams();
+
     const [followerToggle, setFollowersToggle] = useState(false);
     const [followingToggle, setFollowingToggle] = useState(false);
     const [userFollowing, setUserFollowing] = useState(false);
     const [myProfile, setMyProfile] = useState(false);
-    const {posts, loading : proLoading} = useSelector(state => state.userPostReducer);
+
+    const {posts, loading : postLoading} = useSelector(state => state.userPostReducer);
+    const {users : user, loading : userLoading, error : userDetailsError} = useSelector(state => state.userDetailsReducer);
+    const {user : actualUser} =  useSelector(state => state.user);
+    const {message, error : errors, loading } = useSelector(state => state.likeReducer);
+
     const alert = useAlert();
     const dispatch = useDispatch();
 
-    const {user, loading : userloading, error : loginError} = useSelector(state => state.user);
-    const {error, loading, myposts} = useSelector(state => state.myPostReducer);
-    const {message, error : errors} = useSelector(state => state.likeReducer);
-
-    const followHandler = () => {
+    const followHandler = async () => {
         setUserFollowing(!userFollowing);
+        await dispatch(followUnfollow(id));
+        await dispatch(getUserDetails(id))
+        dispatch(loadUser());
     }
 
     useEffect(() => {
+        dispatch(getUserDetails(id));
         dispatch(getUserPosts(id));
-        console.log(posts);
-        if(user._id === id){
+        if(actualUser._id === id){
             setMyProfile(true)
         }
-    }, [])
+    }, [dispatch, id, actualUser._id])
 
     useEffect(() => {
-        if(error){
-            alert.error(error);
-            dispatch({type : "clearError"});
+        if(user){
+            user.followers.forEach(element => {
+                if(element._id === actualUser._id){
+                    setUserFollowing(true)
+                }else setUserFollowing(false)
+            });
         }
-
-        if(loginError){
-            alert.error(loginError);
-            dispatch({type : "clearError"});
-        }
-
+    }, [user, actualUser._id])
+    useEffect(() => {
         if(errors){
             alert.error(errors);
             dispatch({type : "clearError"});
         }
-
+        if(userDetailsError){
+            alert.error(userDetailsError);
+            dispatch({type : "clearError"});
+        }
         if(message){
             alert.success(message);
             dispatch({type : "clearMessage"});
         }
         
-        dispatch(getMyPosts());
-    }, [dispatch, message, error, alert, errors])
+    }, [dispatch, message, alert, errors, userDetailsError])
 
-  return loading || proLoading || userloading? <Loader/> : (
+  return postLoading || userLoading || !user ? <Loader/> : (
     <div className="account">
         <div className="accountleft">
             {
@@ -72,13 +78,14 @@ const UserProfile = () => {
                         ownerImage={post.owner.avatar.url}
                         ownerName={post.owner.name}
                         ownerId={post.owner._id}
-                        isAccount={true}>
+                        userId={user._id}
+                        >
                     </Post>
             )) : <Typography variant='h6'>No Posts Yet</Typography>
             }
         </div>
         <div className="accountright">
-            <Avatar src={""} sx={{height : "8vmax", width : "8vmax"}}></Avatar>
+            <Avatar src={user.avatar.url} sx={{height : "8vmax", width : "8vmax"}}></Avatar>
             <Typography variant='h5'>{user.name}</Typography>
 
             <div>
@@ -115,7 +122,7 @@ const UserProfile = () => {
             </div>
 
             {
-                !myProfile && <Button variant='contained' onClick={followHandler}>
+                !myProfile && <Button variant='contained' disabled={loading} onClick={followHandler}>
                     {userFollowing ? "Unfollow" : "Follow"}
                 </Button>
             }
@@ -129,7 +136,7 @@ const UserProfile = () => {
                         key={elem._id}
                         userId={elem._id}
                         name={elem.name}
-                        avatar={"https://avatars.githubusercontent.com/u/25058652?v=4"}
+                        avatar={elem.avatar.url}
                         ></User>
                     )) : "No followers yet"
                 }
@@ -145,7 +152,7 @@ const UserProfile = () => {
                         key={elem._id}
                         userId={elem._id}
                         name={elem.name}
-                        avatar={"https://avatars.githubusercontent.com/u/25058652?v=4"}
+                        avatar={elem.avatar.url}
                         ></User>
                     )) : "No following yet"
                 }

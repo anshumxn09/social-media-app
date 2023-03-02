@@ -126,13 +126,13 @@ export const getFollowingPosts = () => async(dispatch) => {
     }
 }
 
-export const getAllUsers = () => async(dispatch) => {
+export const getAllUsers = (name = "") => async(dispatch) => {
     try {
         dispatch({
             type : "allUserRequest"
         })
 
-        const {data} = await axios.get("/api/users");
+        const {data} = await axios.get(`/api/users?name=${name}`);
 
         dispatch({
             type : "allUserSuccess",
@@ -255,8 +255,30 @@ export const getUserPosts = (id) => async (dispatch) => {
 
         const {data} = await axios.get(`/api/user/post/${id}`);
 
-        dispatch({type : "userPostSuccess", payload : data.user})
+        dispatch({type : "userPostSuccess", payload : data.posts})
     } catch (error) {
         dispatch({type : "userPostFailure", payload : error.response.data.message})
+    }
+}
+
+export const getUserDetails = (id) => async (dispatch) => {
+    try {
+        dispatch({type : "userDetailsRequest"})
+
+        const {data} = await axios.get(`/api/user/${id}`);
+
+        dispatch({type : "userDetailsSuccess", payload : data.user})
+    } catch (error) {
+        dispatch({type : "userDetailsFailure", payload : error.response.data.message})
+    }
+}
+
+export const followUnfollow = (id) => async (dispatch) => {
+    try {
+        dispatch({type : "followRequest"})
+        const {data} = await axios.get(`/api/follow/${id}`);
+        dispatch({type : "followSuccess", payload : data.message})
+    } catch (error) {
+        dispatch({type : "followFailure", payload : error.response.data.message})
     }
 }

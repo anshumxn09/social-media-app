@@ -11,7 +11,7 @@ import {
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { commentPost, deletePost, likePost, updateCaption} from "../../Actions/Post";
-import { getFollowingPosts, getMyPosts, loadUser } from "../../Actions/User";
+import { getFollowingPosts, getMyPosts, getUserPosts, loadUser } from "../../Actions/User";
 import User from "../User/User";
 import CommentCard from "../CommentCard/CommentCard";
 
@@ -19,6 +19,7 @@ const Post = ({
   postId,
   caption,
   postImage,
+  userId,
   likes = [],
   comments = [],
   ownerImage,
@@ -43,16 +44,18 @@ const Post = ({
     const handleLike = async () => {
         await dispatch(likePost(postId));
         if(!isAccount){
-            dispatch(getFollowingPosts());
+            await dispatch(getFollowingPosts());
+            dispatch(getUserPosts(userId));
         }else dispatch(getMyPosts());
         setLiked(!liked);
-    }
+    } 
 
     const addCommentHandler = async (e) => {
         e.preventDefault();
         await dispatch(commentPost(postId, commentValue));
         if(!isAccount){
-            dispatch(getFollowingPosts());
+            await dispatch(getFollowingPosts());
+            dispatch(getUserPosts(userId));
         }else dispatch(getMyPosts());
 
         setLiked(!liked);
@@ -60,6 +63,7 @@ const Post = ({
 
     const updateCaptionHandler = () => {
         dispatch(updateCaption(postId, captionValue));
+        dispatch(getUserPosts(userId));
         dispatch(getMyPosts());
     }
 
@@ -150,13 +154,14 @@ const Post = ({
                         comments.length > 0 ? comments.map((elem) => (
                             <CommentCard 
                                 key={elem._id}
+                                acc={userId}
                                 userId={elem.user._id} 
                                 name={elem.user.name}
                                 avatar={elem.user.avatar.url}
                                 comment={elem.comment}
                                 commentId={elem._id}
                                 postId={postId}
-                                isAccount = {true}
+                                isAccount = {elem.user._id === user._id ? true : false}
                             />
                         )) : <Typography variant="h5">"No comments yet"</Typography>
                     }

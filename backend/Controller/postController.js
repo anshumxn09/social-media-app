@@ -219,15 +219,15 @@ const postController = {
         }
         
         if(post.owner.toString() === req.user._id.toString()){
-            const {commentID} = req.body;
-            if(!commentID){
+            const { commentId } = req.body;
+            if(!commentId){
                 return res.status(400).json({
                     success : false,
                     message : "selected id doesnt found"
                 })
             }
             post.comments.forEach(async (elem,index) => {
-                if(elem._id.toString() === commentID.toString()){
+                if(elem._id.toString() === commentId.toString()){
                     return post.comments.splice(index, 1)
                 }
             })
